@@ -82,6 +82,7 @@ class ProbabilisticAutomaton:
     enable_levenshtein_fallback: bool = True
 
     states: List[str] = field(default_factory=list)
+    sax_dictionary: set[str] = field(default_factory=set)
     transition_counts: Dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
     transition_probs: Dict[str, Dict[str, float]] = field(default_factory=dict)
     state_outgoing_totals: Dict[str, int] = field(default_factory=dict)
@@ -120,13 +121,16 @@ class ProbabilisticAutomaton:
         """
 
         states_seen: set[str] = set()
+        dictionary: set[str] = set()
         for series in training_series:
             patterns = self.encode_sequence(series)
+            dictionary.update(patterns)
             for prev, curr in zip(patterns[:-1], patterns[1:]):
                 self.transition_counts[prev][curr] += 1
                 states_seen.add(prev)
                 states_seen.add(curr)
 
+        self.sax_dictionary = dictionary
         self.states = sorted(states_seen)
         self.transition_probs = self._compute_transition_probs(self.transition_counts)
         self.state_outgoing_totals = {
@@ -158,10 +162,30 @@ class ProbabilisticAutomaton:
             return self.laplace_smoothing / max(len(self.states), 1)
         return float(row.get(to_state, self.laplace_smoothing / max(len(self.states), 1)))
 
-    def resolve_state(self, pattern: str) -> tuple[str, str, Optional[str], Optional[int]]:
-        """Return (resolved_state, status, mapped_to, distance)."""
+    def transition_structure_metrics(self) -> dict[str, float | int]:
+        """State count and transition density for parameter-sensitivity reports."""
 
-        if pattern in self.transition_probs or pattern in self.states:
+        n_states = len(self.states)
+        n_edges = sum(len(counter) for counter in self.transition_counts.values())
+        n_events = sum(sum(counter.values()) for counter in self.transition_counts.values())
+        density = float(n_edges / (n_states * n_states)) if n_states > 0 else 0.0
+        return {
+            "n_states": n_states,
+            "sax_dictionary_size": len(self.sax_dictionary),
+            "n_transition_edges": n_edges,
+            "n_transition_events": n_events,
+            "transition_density": density,
+            "avg_outgoing_edges": float(n_edges / n_states) if n_states > 0 else 0.0,
+        }
+
+    def resolve_state(self, pattern: str) -> tuple[str, str, Optional[str], Optional[int]]:
+        """Return (resolved_state, status, mapped_to, distance).
+
+        A pattern is **seen** when it belongs to the training SAX dictionary
+        (PDF Bölüm VI / VI.A). Otherwise Levenshtein maps to the nearest state.
+        """
+
+        if pattern in self.sax_dictionary:
             return pattern, "seen", None, 0
         if self.enable_levenshtein_fallback and self.states:
             nearest, distance = find_nearest_pattern(pattern, self.states)

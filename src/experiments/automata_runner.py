@@ -39,6 +39,10 @@ class AutomataRunResult:
     mapping_accuracy: float = 0.0
     train_time_sec: float = 0.0
     inference_time_sec: float = 0.0
+    sax_dictionary_size: int = 0
+    n_transition_edges: int = 0
+    transition_density: float = 0.0
+    avg_nearest_distance_unseen: float = 0.0
     anomaly_score: Optional[np.ndarray] = None
     y_true_aligned: Optional[np.ndarray] = None
     y_pred_aligned: Optional[np.ndarray] = None
@@ -104,16 +108,20 @@ def evaluate_automaton(
 
     if not explanations:
         empty_metrics = ClassificationMetrics(0.0, 0.0, 0.0, 0.0, 0)
+        structure = automaton.transition_structure_metrics()
         return AutomataRunResult(
             metrics=empty_metrics,
             confusion_matrix=np.zeros((2, 2), dtype=int),
-            n_states=len(automaton.states),
+            n_states=int(structure["n_states"]),
             n_unique_test_patterns=0,
             n_unseen_test_patterns=0,
             explanations_summary=confidence_score_summary([]),
             detection_rate=0.0,
             mapping_accuracy=0.0,
             inference_time_sec=inference_time,
+            sax_dictionary_size=int(structure["sax_dictionary_size"]),
+            n_transition_edges=int(structure["n_transition_edges"]),
+            transition_density=float(structure["transition_density"]),
         )
 
     y_pred = np.array([1 if step.decision == "anomaly" else 0 for step in explanations])
@@ -150,6 +158,14 @@ def evaluate_automaton(
         if unseen_steps
         else 0.0
     )
+    distances = [
+        float(s.nearest_distance)
+        for s in unseen_steps
+        if s.nearest_distance is not None
+    ]
+    avg_nearest_distance_unseen = float(np.mean(distances)) if distances else 0.0
+
+    structure = automaton.transition_structure_metrics()
 
     # Anomaly score for ROC/PR: higher = more anomalous => use 1 - confidence.
     anomaly_score = np.array([1.0 - float(s.confidence) for s in explanations[:aligned_len]])
@@ -157,13 +173,17 @@ def evaluate_automaton(
     return AutomataRunResult(
         metrics=metrics,
         confusion_matrix=cm,
-        n_states=len(automaton.states),
+        n_states=int(structure["n_states"]),
         n_unique_test_patterns=len(test_patterns),
         n_unseen_test_patterns=len(unseen_patterns),
         explanations_summary=confidence_score_summary(explanations),
         detection_rate=detection_rate,
         mapping_accuracy=mapping_accuracy,
         inference_time_sec=inference_time,
+        sax_dictionary_size=int(structure["sax_dictionary_size"]),
+        n_transition_edges=int(structure["n_transition_edges"]),
+        transition_density=float(structure["transition_density"]),
+        avg_nearest_distance_unseen=avg_nearest_distance_unseen,
         anomaly_score=anomaly_score,
         y_true_aligned=y_true,
         y_pred_aligned=y_pred,
