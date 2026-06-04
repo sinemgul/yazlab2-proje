@@ -38,19 +38,18 @@ def make_smoke_config() -> ProjectConfig:
     cfg.experiment = ExperimentConfig(
         scenarios=("original", "noise", "unseen"),
         gaussian_noise_std=0.1,
-        unseen_pattern_inject_ratio=0.05,
     )
-    cfg.sweep = ParameterSweepConfig(window_sizes=(4,), alphabet_sizes=(3,))
-    cfg.automata = AutomataConfig()
-    cfg.preprocessing = PreprocessingConfig()
     cfg.deep_learning = DeepLearningConfig(
-        models=("lstm", "cnn1d"),
+        models=("lstm", "gru", "cnn1d"),
         sequence_length=8,
         hidden_size=8,
         num_layers=1,
         cnn_channels=8,
         cnn_kernel_size=3,
     )
+    cfg.sweep = ParameterSweepConfig(window_sizes=(4,), alphabet_sizes=(3,))
+    cfg.automata = AutomataConfig()
+    cfg.preprocessing = PreprocessingConfig()
     cfg.paths = PathsConfig(
         artifacts_dir=Path("artifacts/smoke"),
         logs_dir=Path("artifacts/smoke/logs"),

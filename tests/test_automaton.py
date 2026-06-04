@@ -29,16 +29,46 @@ def test_fit_collects_states_and_transitions() -> None:
         assert total > 0, f"state {state} has zero outgoing probability mass"
 
 
+def test_sax_dictionary_populated_on_fit() -> None:
+    automaton = _build_automaton()
+    series = _series_with_clear_transitions()
+    automaton.fit([series])
+    encoded = set(automaton.encode_sequence(series))
+    assert encoded.issubset(automaton.sax_dictionary)
+    assert len(automaton.sax_dictionary) >= len(automaton.states)
+
+
 def test_unseen_pattern_maps_via_levenshtein() -> None:
     automaton = _build_automaton()
     automaton.fit([_series_with_clear_transitions()])
-    known_pattern = automaton.states[0]
+    known_pattern = next(iter(automaton.sax_dictionary))
     unseen = "z" * len(known_pattern)
+    assert unseen not in automaton.sax_dictionary
     state, status, mapped_to, distance = automaton.resolve_state(unseen)
     assert status == "unseen"
     assert mapped_to in automaton.states
     assert state == mapped_to
     assert distance is not None and distance >= 0
+
+
+def test_seen_pattern_uses_dictionary() -> None:
+    automaton = _build_automaton()
+    automaton.fit([_series_with_clear_transitions()])
+    known = next(iter(automaton.sax_dictionary))
+    state, status, mapped_to, distance = automaton.resolve_state(known)
+    assert status == "seen"
+    assert state == known
+    assert mapped_to is None
+    assert distance == 0
+
+
+def test_transition_structure_metrics() -> None:
+    automaton = _build_automaton()
+    automaton.fit([_series_with_clear_transitions()])
+    metrics = automaton.transition_structure_metrics()
+    assert metrics["n_states"] > 0
+    assert metrics["transition_density"] >= 0.0
+    assert metrics["sax_dictionary_size"] >= metrics["n_states"]
 
 
 def test_explain_sequence_emits_one_step_per_window() -> None:

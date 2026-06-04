@@ -104,7 +104,8 @@ Testler aşağıdaki davranışları doğrular:
 | Bileşen | Değer |
 |---|---|
 | Random seedler | 42, 123, 2026, 7, 999 |
-| Senaryolar | original, Gaussian noise, unseen |
+| Senaryolar | original, Gaussian noise, unseen (SAX sözlüğü, PDF VI.A) |
+| DL modelleri | LSTM, GRU, 1D-CNN |
 | Sabit otomata parametreleri | window=4, alphabet=3 |
 | Sweep | window ∈ {3,4,5,6}, alphabet ∈ {3,4,5,6} |
 | BATADAL split | %60 / %20 / %20, zaman sıralı |
@@ -116,6 +117,15 @@ Testler aşağıdaki davranışları doğrular:
 Veri sızıntısı önleme: scaler/PCA/SAX sözlüğü yalnızca eğitim kümesi
 üzerinde fit edilir (`src/data/preprocessing.py`,
 `src/automata/automaton.py`).
+
+**Unseen senaryosu (PDF VI.A):** Test özellikleri değiştirilmez. Eğitimde
+görülen SAX pattern'ları `sax_dictionary` içinde tutulur; testte sözlükte
+olmayan pattern'lar `unseen` sayılır ve Levenshtein ile en yakın state'e
+eşlenir.
+
+**Parametre analizi:** Her otomata koşumunda `n_states`, `transition_density`
+(geçiş yoğunluğu = gözlemlenen kenar sayısı / |V|²) ve `sax_dictionary_size`
+loglanır; Tablo 4 ve `sensitivity_*_transition_density_mean.png` ile raporlanır.
 
 ## Açıklanabilirlik (PDF Bölüm X)
 
