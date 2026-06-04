@@ -181,7 +181,7 @@ def build_table3_cross_dataset(cross_df: pd.DataFrame) -> pd.DataFrame:
 def build_table4_param_sensitivity(
     batadal_auto: pd.DataFrame, skab_auto: pd.DataFrame
 ) -> pd.DataFrame:
-    """Tablo 4 - Window/Alphabet sensitivity F1 means averaged over datasets."""
+    """Tablo 4 - Window/Alphabet sensitivity (F1, state count, transition density)."""
 
     rows: list[dict] = []
     for dataset_label, df in (("BATADAL", batadal_auto), ("SKAB", skab_auto)):
@@ -195,26 +195,41 @@ def build_table4_param_sensitivity(
             alpha_scope = df_scope[
                 (df_scope["alphabet_size"] == value) & (df_scope["window_size"] == 4)
             ]
-            rows.append(
-                {
-                    "Dataset": dataset_label,
-                    "Parameter": "Window Size",
-                    "Value": value,
-                    "F1": _format_mean_std(window_scope["f1"].mean(), window_scope["f1"].std())
-                    if not window_scope.empty
-                    else "-",
-                }
-            )
-            rows.append(
-                {
-                    "Dataset": dataset_label,
-                    "Parameter": "Alphabet Size",
-                    "Value": value,
-                    "F1": _format_mean_std(alpha_scope["f1"].mean(), alpha_scope["f1"].std())
-                    if not alpha_scope.empty
-                    else "-",
-                }
-            )
+            for param_label, scope in (
+                ("Window Size", window_scope),
+                ("Alphabet Size", alpha_scope),
+            ):
+                if scope.empty:
+                    rows.append(
+                        {
+                            "Dataset": dataset_label,
+                            "Parameter": param_label,
+                            "Value": value,
+                            "F1": "-",
+                            "States": "-",
+                            "Transition Density": "-",
+                        }
+                    )
+                    continue
+                rows.append(
+                    {
+                        "Dataset": dataset_label,
+                        "Parameter": param_label,
+                        "Value": value,
+                        "F1": _format_mean_std(scope["f1"].mean(), scope["f1"].std()),
+                        "States": _format_mean_std(
+                            scope["n_states"].mean(), scope["n_states"].std()
+                        )
+                        if "n_states" in scope.columns
+                        else "-",
+                        "Transition Density": _format_mean_std(
+                            scope["transition_density"].mean(),
+                            scope["transition_density"].std(),
+                        )
+                        if "transition_density" in scope.columns
+                        else "-",
+                    }
+                )
     return pd.DataFrame(rows)
 
 
@@ -287,8 +302,16 @@ def build_markdown_report(paths: PathsConfig) -> Path:
     sections.append(_df_to_markdown(build_table3_cross_dataset(cross_df)))
     sections.append("")
 
-    sections.append("## Tablo 4: Automata Parametre Duyarlılık Analizi (F1)")
+    sections.append(
+        "## Tablo 4: Automata Parametre Duyarlılığı (F1, state sayısı, geçiş yoğunluğu)"
+    )
     sections.append(_df_to_markdown(build_table4_param_sensitivity(batadal_auto, skab_auto)))
+    sections.append("")
+    sections.append(
+        "> **Unseen senaryosu (PDF VI.A):** Test verisi değiştirilmez; eğitim SAX "
+        "sözlüğünde olmayan pattern'lar `unseen` sayılır. Levenshtein ile en yakın "
+        "state'e eşlenir."
+    )
     sections.append("")
 
     sections.append("## Tablo 5: Modellerin Çalışma Süresi (Training / Inference)")

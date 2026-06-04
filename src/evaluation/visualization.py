@@ -195,7 +195,12 @@ def render_all_figures(
         if not Path(summary_path).exists():
             continue
         df = pd.read_csv(summary_path)
-        for metric in ("f1_mean", "accuracy_mean"):
+        for metric in (
+            "f1_mean",
+            "accuracy_mean",
+            "n_states_mean",
+            "transition_density_mean",
+        ):
             if metric in df.columns:
                 plot_parameter_sensitivity(
                     summary_df=df,
