@@ -103,7 +103,7 @@ class ParameterSweepConfig:
 class DeepLearningConfig:
     """Hyper-parameters shared by all sequence DL models."""
 
-    models: Tuple[str, ...] = ("lstm", "cnn1d")  # subset of {"lstm", "gru", "cnn1d"}
+    models: Tuple[str, ...] = ("lstm", "gru", "cnn1d")  # PDF: en az ikisi; üçünü de koşuyoruz
     sequence_length: int = 16
     hidden_size: int = 32
     num_layers: int = 1
@@ -134,7 +134,8 @@ class ExperimentConfig:
 
     scenarios: Tuple[str, ...] = ("original", "noise", "unseen")
     gaussian_noise_std: float = 0.1
-    unseen_pattern_inject_ratio: float = 0.1
+    # Unseen senaryosu PDF VI.A: test pattern'ları train SAX sözlüğüne göre işaretlenir
+    # (aşırı değer enjeksiyonu kullanılmaz).
 
 
 # ---------------------------------------------------------------------------

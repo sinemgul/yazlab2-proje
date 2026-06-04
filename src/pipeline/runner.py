@@ -61,9 +61,9 @@ from src.experiments.automata_runner import (
 )
 from src.experiments.scenarios import (
     ScenarioOutput,
+    dictionary_unseen_scenario,
     gaussian_noise_scenario,
     original_scenario,
-    unseen_scenario,
 )
 from src.models.deep_learning import fit_dl_model, torch_available
 from src.models.sequence_dataset import build_sliding_sequences
@@ -88,7 +88,7 @@ def _scenario_for(
     if name == "noise":
         return gaussian_noise_scenario(x, y, exp_cfg.gaussian_noise_std, seed)
     if name == "unseen":
-        return unseen_scenario(x, y, exp_cfg.unseen_pattern_inject_ratio, seed)
+        return dictionary_unseen_scenario(x, y)
     raise ValueError(f"Unknown scenario: {name}")
 
 
@@ -313,16 +313,11 @@ def _run_batadal_seed_scenario(
             "alphabet_size": auto_cfg.alphabet_size,
             "metrics": result.metrics.to_dict(),
             "confusion_matrix": result.confusion_matrix.tolist(),
-            "n_states": result.n_states,
-            "n_unique_test_patterns": result.n_unique_test_patterns,
-            "n_unseen_test_patterns": result.n_unseen_test_patterns,
-            "detection_rate": result.detection_rate,
-            "mapping_accuracy": result.mapping_accuracy,
             "train_time_sec": result.train_time_sec,
             "inference_time_sec": result.inference_time_sec,
             "roc_auc": roc_pr.get("roc_auc") if roc_pr.get("available") else None,
             "pr_auc": roc_pr.get("pr_auc") if roc_pr.get("available") else None,
-            "explanations_summary": result.explanations_summary,
+            **_automata_metrics_payload(result),
         }
         _record(payload, automata_results_path)
 
@@ -596,16 +591,11 @@ def _run_skab_fold_scenario(
             "alphabet_size": auto_cfg.alphabet_size,
             "metrics": result.metrics.to_dict(),
             "confusion_matrix": result.confusion_matrix.tolist(),
-            "n_states": result.n_states,
-            "n_unique_test_patterns": result.n_unique_test_patterns,
-            "n_unseen_test_patterns": result.n_unseen_test_patterns,
-            "detection_rate": result.detection_rate,
-            "mapping_accuracy": result.mapping_accuracy,
             "train_time_sec": result.train_time_sec,
             "inference_time_sec": result.inference_time_sec,
             "roc_auc": roc_pr.get("roc_auc") if roc_pr.get("available") else None,
             "pr_auc": roc_pr.get("pr_auc") if roc_pr.get("available") else None,
-            "explanations_summary": result.explanations_summary,
+            **_automata_metrics_payload(result),
         }
         _record(payload, automata_results_path)
 
@@ -751,34 +741,26 @@ def _apply_scenario_to_array(
     exp_cfg: ExperimentConfig,
     seed: int,
 ) -> np.ndarray:
-    if scenario_name == "original":
-        return x.copy()
-    if scenario_name == "noise":
-        rng = np.random.default_rng(seed)
-        return add_gaussian_noise(x, exp_cfg.gaussian_noise_std, rng)
-    if scenario_name == "unseen":
-        return _inject_unseen(x, exp_cfg.unseen_pattern_inject_ratio, seed)
-    raise ValueError(f"Unknown scenario: {scenario_name}")
+    """Return test features for the requested scenario (train untouched)."""
+
+    return _scenario_for(scenario_name, x, y, exp_cfg, seed).x
 
 
-def _inject_unseen(x: np.ndarray, inject_ratio: float, seed: int) -> np.ndarray:
-    """Replace a fraction of rows with extreme values to force unseen SAX
-    patterns at test time."""
+def _automata_metrics_payload(result: AutomataRunResult) -> dict:
+    """Shared automata log fields (incl. PDF transition-density analysis)."""
 
-    rng = np.random.default_rng(seed)
-    out = x.copy()
-    n = out.shape[0]
-    k = max(1, int(n * inject_ratio))
-    if n == 0 or inject_ratio <= 0:
-        return out
-    indices = rng.choice(n, size=k, replace=False)
-    extreme = float(np.nanmax(np.abs(out)) + 5.0) if n > 0 else 5.0
-    signs = rng.choice([-1.0, 1.0], size=k)
-    if out.ndim == 2:
-        out[indices, :] = (extreme * signs)[:, None]
-    else:
-        out[indices] = extreme * signs
-    return out
+    return {
+        "n_states": result.n_states,
+        "sax_dictionary_size": result.sax_dictionary_size,
+        "n_transition_edges": result.n_transition_edges,
+        "transition_density": result.transition_density,
+        "n_unique_test_patterns": result.n_unique_test_patterns,
+        "n_unseen_test_patterns": result.n_unseen_test_patterns,
+        "detection_rate": result.detection_rate,
+        "mapping_accuracy": result.mapping_accuracy,
+        "avg_nearest_distance_unseen": result.avg_nearest_distance_unseen,
+        "explanations_summary": result.explanations_summary,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -873,11 +855,15 @@ def aggregate_summaries(paths: PathsConfig) -> None:
             for opt_col in (
                 "detection_rate",
                 "mapping_accuracy",
+                "avg_nearest_distance_unseen",
                 "train_time_sec",
                 "inference_time_sec",
                 "roc_auc",
                 "pr_auc",
                 "n_states",
+                "sax_dictionary_size",
+                "n_transition_edges",
+                "transition_density",
                 "n_unseen_test_patterns",
             ):
                 if opt_col in df.columns:
