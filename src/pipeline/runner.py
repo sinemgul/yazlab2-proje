@@ -801,6 +801,7 @@ def run_experiments(cfg: ProjectConfig) -> None:
     run_statistical_tests(cfg.paths, logger)
 
     try:
+        from src.evaluation.gallery import build_figure_gallery
         from src.evaluation.visualization import render_all_figures
 
         render_all_figures(
@@ -811,6 +812,9 @@ def run_experiments(cfg: ProjectConfig) -> None:
                 cfg.paths.results_dir / "skab_automata_summary.csv",
             ],
         )
+        gallery = build_figure_gallery(cfg.paths.figures_dir)
+        if gallery is not None:
+            logger.info("Figure gallery: %s", gallery)
     except Exception:
         logger.warning("Figure rendering failed; continuing without plots.", exc_info=True)
 
