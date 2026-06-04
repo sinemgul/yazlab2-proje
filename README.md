@@ -1,41 +1,20 @@
-# Yazlab2 — From Black-Box to Explainability
+# Yazlab2 — Olasılıksal Otomata vs Derin Öğrenme
 
-Zaman serisi verileri üzerinde **derin öğrenme tabanlı (black-box)** ve **olasılıksal otomata tabanlı (interpretable)** modelleri sistematik biçimde karşılaştıran proje. PDF'te tanımlanan tüm mimari, deney ve raporlama gereksinimleri tek bir merkezi konfigürasyon ve modüler pipeline üzerinden yönetilir.
+**Yazılım Laboratuvarı II** ders projesi. BATADAL ve SKAB zaman serilerinde
+black-box modeller (LSTM, GRU, 1D-CNN) ile açıklanabilir **olasılıksal otomata**
+yaklaşımını aynı pipeline üzerinde karşılaştırıyoruz.
 
-## Proje Yapısı
+| | |
+|---|---|
+| **Ekip** | Sinem Gül, Elif Aysan |
+| **Repo** | https://github.com/sinemgul/yazlab2-proje |
 
-```
-src/
-  config.py                  Tüm parametrelerin merkezi tanımı (PDF Bölüm VIII)
-  data/
-    batadal.py               BATADAL Training Dataset 2 yükleyicisi
-    skab.py                  SKAB valve1 + valve2 birleştirici (source_group/source_file)
-    preprocessing.py         Eksik veri, normalizasyon, PCA, gürültü
-    splits.py                Time-ordered + GroupKFold/StratifiedGroupKFold
-  automata/
-    sax.py                   PAA + SAX + sliding window
-    levenshtein.py           Edit distance + en yakın pattern eşleme
-    automaton.py             Olasılıksal otomata + path probability + güven skoru
-    explainability.py        JSON/JSONL açıklanabilirlik çıktıları + transition matrix
-    counterfactual.py        Counterfactual analiz (PDF X.D opsiyonel ek puan)
-  models/
-    deep_learning.py         LSTM / GRU / 1D-CNN sınıflandırıcılar (PyTorch) + süre ölçümü
-    sequence_dataset.py      Sliding-window sekans üretimi
-  evaluation/
-    metrics.py               Accuracy/Precision/Recall/F1 + ROC/PR + Wilcoxon + McNemar
-    visualization.py         Confusion matrix, transition heatmap, state diagram, sensitivity
-  experiments/
-    scenarios.py             Original / Gaussian noise / Unseen senaryoları
-    automata_runner.py       Otomata değerlendirme + Detection Rate + Mapping Accuracy
-    report.py                Markdown rapor üretici (Tablo 1-5)
-  pipeline/
-    runner.py                Uçtan uca BATADAL + SKAB + cross-dataset + istatistik testleri
-  utils/
-    logging.py               JSONL loglama + JSON snapshot
-    seeding.py               Tek noktadan seed kontrolü
-  main.py                    `python -m src.main` giriş noktası
-tests/                       PyTest birim testleri (Levenshtein, SAX, otomata, splits, metrics)
-```
+## Proje ne yapıyor?
+
+Veriyi okuyup ön işliyoruz, train/val/test ayırıyoruz, sonra hem derin öğrenme
+hem SAX + otomata ile sınıflandırma yapıyoruz. Metrikler, grafikler ve otomata
+için adım adım açıklamalar `artifacts/` klasörüne yazılıyor. Parametrelerin
+çoğu `src/config.py` dosyasında; PDF’teki deney tasarımına göre ayarladık.
 
 ## Kurulum
 
@@ -45,43 +24,39 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-> Not: `torch` kurulumu işletim sistemi/GPU sürümüne göre değişebilir. PyTorch
-> mevcut değilse pipeline derin öğrenme adımlarını otomatik atlar; otomata
-> tarafı bağımsız çalışmaya devam eder.
+`torch` kurulu değilse DL kısmı atlanır, otomata tarafı yine çalışır.
 
-## Veri Yolları
+## Veri yolları
 
-`src/config.py` içindeki `BatadalConfig.csv_path` ve `SkabConfig.root_dir`
-değerlerini sisteminizdeki konumlara göre güncelleyin. Varsayılan yollar
-şöyledir:
+Kendi makinenize göre `src/config.py` içindeki yolları düzenleyin. Bizim
+örnek:
 
-- BATADAL: `c:\Users\sinem\Downloads\BATADAL_dataset04.csv`
-- SKAB: `c:\Users\sinem\Downloads\archive (3)\SKAB`
+- BATADAL: `Downloads\BATADAL_dataset04.csv`
+- SKAB: `Downloads\archive (3)\SKAB`
 
 ## Çalıştırma
+
+Tam deney (uzun sürebilir, saatler alabilir):
 
 ```powershell
 python -m src.main
 ```
 
-Çıktılar `artifacts/` altında oluşturulur:
+Hızlı deneme / figür üretimi:
 
-- `artifacts/results/<dataset>_<model>_runs.jsonl` — her deneyin satır bazlı kaydı (metrikler, süreler, ROC/PR, Detection Rate, Mapping Accuracy)
-- `artifacts/results/<dataset>_<model>_summary.csv` — senaryo/parametre bazlı ortalama ± std (süreler ve skorlar dahil)
-- `artifacts/results/cross_dataset_runs.jsonl` — BATADAL ↔ SKAB transfer sonuçları
-- `artifacts/results/statistical_tests.csv` — Wilcoxon + McNemar sonuçları (otomata/DL çiftleri)
-- `artifacts/results/experiment_report.md` — Rapor için 5 tablo + istatistik testleri (Markdown)
-- `artifacts/results/*_transitions.csv` — geçiş olasılıkları matrisleri
-- `artifacts/results/predictions/*.npz` — istatistik testleri için cache'lenmiş tahminler
-- `artifacts/explanations/*.jsonl` — olasılıksal açıklanabilirlik kayıtları
-- `artifacts/explanations/counterfactual_*.json` — counterfactual analiz örneklemleri
-- `artifacts/figures/cm_*.png` — confusion matrix figürleri
-- `artifacts/figures/roc_*.png`, `pr_*.png` — ROC ve Precision-Recall eğrileri
-- `artifacts/figures/heatmap_*.png` — geçiş olasılığı heatmap'ları
-- `artifacts/figures/diagram_*.png` — automata state diagramları
-- `artifacts/figures/sensitivity_*.png` — window/alphabet duyarlılık ısı haritası
-- `artifacts/logs/yazlab2.experiments.log` — koşum logu
-- `artifacts/logs/config_snapshot.json` — kullanılan tam konfigürasyon
+```powershell
+python scripts/smoke_pipeline.py
+```
+
+Grafiklere bakmak için tarayıcıda açın:
+`artifacts/smoke/figures/gallery.html` (smoke sonrası oluşur).
+
+## Çıktılar (`artifacts/`)
+
+- `results/` — csv, jsonl, `experiment_report.md` (tablolar)
+- `figures/` — confusion matrix, ROC/PR, heatmap, state diagram
+- `explanations/` — otomata adımları (json/jsonl)
+- `logs/` — koşum logu ve config snapshot
 
 ## Testler
 
@@ -89,50 +64,32 @@ python -m src.main
 pytest
 ```
 
-Testler aşağıdaki davranışları doğrular:
+## Kod yapısı (özet)
 
-- `tests/test_levenshtein.py` — Levenshtein doğruluğu, en yakın pattern eşleme,
-  boş aday listesi davranışı, deterministik tie-break (PDF Bölüm VI gereksinimi).
-- `tests/test_sax.py` — PAA/SAX doğruluğu, sliding window sayısı, alfabe haritası.
-- `tests/test_automaton.py` — Geçiş olasılıkları, unseen pattern yönetimi, path
-  probability ve karar eşiği.
-- `tests/test_splits.py` — Time-ordered bölme, GroupKFold sızıntı kontrolü.
-- `tests/test_metrics.py` — Accuracy/F1, Wilcoxon, McNemar yardımcıları.
+```
+src/
+  config.py          parametreler
+  data/              BATADAL, SKAB, ön işleme, split
+  automata/          SAX, otomata, açıklanabilirlik
+  models/            LSTM, GRU, 1D-CNN
+  evaluation/        metrikler, grafikler
+  experiments/       senaryolar (original / gürültü / unseen)
+  pipeline/          uçtan uca koşum
+tests/               birim testler
+```
 
-## Deney Tasarımı (PDF Bölüm VII ile birebir)
+## Deney notları (PDF özeti)
 
-| Bileşen | Değer |
-|---|---|
-| Random seedler | 42, 123, 2026, 7, 999 |
-| Senaryolar | original, Gaussian noise, unseen (SAX sözlüğü, PDF VI.A) |
-| DL modelleri | LSTM, GRU, 1D-CNN |
-| Sabit otomata parametreleri | window=4, alphabet=3 |
-| Sweep | window ∈ {3,4,5,6}, alphabet ∈ {3,4,5,6} |
-| BATADAL split | %60 / %20 / %20, zaman sıralı |
-| SKAB split | `source_file` üzerinde GroupKFold / StratifiedGroupKFold |
-| Epoch üst sınırı | 50 |
-| Batch size | 32 |
-| Early stopping | val_loss, patience=5 |
+- 5 farklı seed, 3 senaryo (original, Gaussian noise, unseen)
+- DL: LSTM, GRU, 1D-CNN — otomata için window/alphabet sweep
+- BATADAL: zaman sıralı %60 / %20 / %20
+- SKAB: `source_file` ile GroupKFold (sızıntı olmasın diye scaler/SAX sadece train’de fit)
+- **Unseen:** test verisini bozmuyoruz; eğitimde görülmeyen SAX pattern’ları
+  sözlükte yoksa unseen sayılıp Levenshtein ile eşleniyor
 
-Veri sızıntısı önleme: scaler/PCA/SAX sözlüğü yalnızca eğitim kümesi
-üzerinde fit edilir (`src/data/preprocessing.py`,
-`src/automata/automaton.py`).
-
-**Unseen senaryosu (PDF VI.A):** Test özellikleri değiştirilmez. Eğitimde
-görülen SAX pattern'ları `sax_dictionary` içinde tutulur; testte sözlükte
-olmayan pattern'lar `unseen` sayılır ve Levenshtein ile en yakın state'e
-eşlenir.
-
-**Parametre analizi:** Her otomata koşumunda `n_states`, `transition_density`
-(geçiş yoğunluğu = gözlemlenen kenar sayısı / |V|²) ve `sax_dictionary_size`
-loglanır; Tablo 4 ve `sensitivity_*_transition_density_mean.png` ile raporlanır.
-
-## Açıklanabilirlik (PDF Bölüm X)
-
-Her test adımı için `state`, `pattern`, `status`, `mapped_to`, `transitions`,
-`path probability`, `decision` ve `confidence` alanlarını içeren JSON kayıt
-üretilir (`src/automata/explainability.py`). PDF örnek formatı korunmuştur.
+Detaylı tablo ve istatistik testleri koşum bitince
+`artifacts/results/experiment_report.md` dosyasında üretiliyor.
 
 ## Lisans
 
-Eğitim amaçlı, ders projesi olarak hazırlanmıştır.
+Eğitim amaçlı ders çalışması; veri setleri kendi lisanslarına tabidir.
