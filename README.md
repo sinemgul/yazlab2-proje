@@ -102,7 +102,7 @@ Sonuçlar:
 
 | `artifacts/figures/gallery.html` | Tüm figürler (otomatik üretilir) |
 
-| `artifacts/dashboard.html` | Tablolar + örnek figürler + galeri linki (tek sayfa) |
+| `artifacts/dashboard.html` | **Tüm sonuçlar** — Tablo 1–5, istatistikler, 548 figür, ham dosya linkleri |
 
 | `artifacts/explanations/*.jsonl` | Otomata adım açıklamaları |
 

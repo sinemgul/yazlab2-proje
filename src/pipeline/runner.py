@@ -834,7 +834,7 @@ def run_experiments(cfg: ProjectConfig) -> None:
             output_path=cfg.paths.artifacts_dir / "dashboard.html",
             gallery_path=cfg.paths.figures_dir / "gallery.html",
         )
-        logger.info("Results dashboard: %s", dashboard)
+        logger.info("Full results HTML: %s", dashboard)
     except Exception:
         logger.warning("Results dashboard build failed", exc_info=True)
 

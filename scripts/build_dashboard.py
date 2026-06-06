@@ -1,4 +1,4 @@
-"""Build the combined results dashboard (tables + gallery link)."""
+"""Build the full HTML results page (all tables + all figures)."""
 
 from __future__ import annotations
 
