@@ -825,6 +825,19 @@ def run_experiments(cfg: ProjectConfig) -> None:
     except Exception:
         logger.warning("Markdown report build failed", exc_info=True)
 
+    try:
+        from src.evaluation.dashboard import build_results_dashboard
+
+        dashboard = build_results_dashboard(
+            report_md=cfg.paths.results_dir / "experiment_report.md",
+            figures_dir=cfg.paths.figures_dir,
+            output_path=cfg.paths.artifacts_dir / "dashboard.html",
+            gallery_path=cfg.paths.figures_dir / "gallery.html",
+        )
+        logger.info("Results dashboard: %s", dashboard)
+    except Exception:
+        logger.warning("Results dashboard build failed", exc_info=True)
+
 
 def aggregate_summaries(paths: PathsConfig) -> None:
     """Compute mean/std summaries from the persisted per-run JSONL files."""
