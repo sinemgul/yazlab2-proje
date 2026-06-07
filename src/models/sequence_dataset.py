@@ -8,12 +8,6 @@ import numpy as np
 def build_sliding_sequences(
     x: np.ndarray, y: np.ndarray, sequence_length: int
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Slide a fixed-length window over (x, y) for sequence classification.
-
-    The label of a sequence is the label of its final time step. Returns an
-    ``(N, sequence_length, n_features)`` tensor of features and an ``(N,)``
-    array of labels.
-    """
 
     if sequence_length <= 0:
         raise ValueError("sequence_length must be positive")

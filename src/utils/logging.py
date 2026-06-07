@@ -7,7 +7,6 @@ from typing import Any
 
 
 def get_logger(name: str = "yazlab2", logs_dir: Path | None = None) -> logging.Logger:
-    """Return a configured stdout logger; optionally also tee to a file."""
 
     logger = logging.getLogger(name)
     if logger.handlers:
@@ -30,7 +29,6 @@ def get_logger(name: str = "yazlab2", logs_dir: Path | None = None) -> logging.L
 
 
 def append_jsonl(path: Path, payload: dict[str, Any]) -> None:
-    """Append a JSON document to a JSONL file."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as f:
@@ -38,7 +36,6 @@ def append_jsonl(path: Path, payload: dict[str, Any]) -> None:
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
-    """Write a single JSON document, creating parent directories if needed."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:

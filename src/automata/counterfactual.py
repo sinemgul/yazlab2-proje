@@ -49,7 +49,6 @@ def counterfactual_for_pattern(
     previous_state: str | None,
     pattern: str,
 ) -> CounterfactualReport:
-    """Generate the counterfactual outcomes obtained by single-symbol edits."""
 
     base_state, base_status, _, _ = automaton.resolve_state(pattern)
     if previous_state is None:

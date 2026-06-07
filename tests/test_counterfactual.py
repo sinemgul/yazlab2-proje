@@ -34,5 +34,5 @@ def test_counterfactual_handles_unseen_pattern() -> None:
     report = counterfactual_for_pattern(
         automaton, previous_state=automaton.states[0], pattern="zzzz"
     )
-    # The base pattern is unseen so the base decision must be anomaly.
+                                                                      
     assert report.base_decision == "anomaly"

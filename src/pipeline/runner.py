@@ -64,9 +64,9 @@ from src.utils.logging import append_jsonl, get_logger, write_json
 from src.utils.seeding import set_global_seed
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+                                                                             
+         
+                                                                             
 
 
 def _scenario_for(
@@ -88,7 +88,6 @@ def _scenario_for(
 def _automata_param_grid(
     cfg: AutomataConfig, sweep_window_sizes: Sequence[int], sweep_alphabet_sizes: Sequence[int]
 ) -> List[AutomataConfig]:
-    """Return the (window_size, alphabet_size) grid used by the analysis."""
 
     grid: list[AutomataConfig] = []
     for window in sweep_window_sizes:
@@ -118,7 +117,6 @@ def _save_roc_pr_curve(
     output_path_roc: Path,
     output_path_pr: Path,
 ) -> None:
-    """Render ROC and Precision-Recall curves to disk if matplotlib is present."""
 
     try:
         import matplotlib
@@ -160,7 +158,6 @@ def _write_counterfactual_sample(
     output_path: Path,
     max_samples: int = 5,
 ) -> None:
-    """Persist a small counterfactual analysis snapshot for the report."""
 
     series_1d = np.asarray(series).ravel()
     patterns = automaton.encode_sequence(series_1d)
@@ -186,7 +183,6 @@ def _cache_predictions(
     y_pred,
     fold: int | None = None,
 ) -> None:
-    """Persist aligned predictions for downstream Wilcoxon / McNemar tests."""
 
     cache_dir = results_dir / "predictions"
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -198,9 +194,9 @@ def _cache_predictions(
     )
 
 
-# ---------------------------------------------------------------------------
-# BATADAL
-# ---------------------------------------------------------------------------
+                                                                             
+         
+                                                                             
 
 
 def run_batadal(cfg: ProjectConfig, logger) -> None:
@@ -250,7 +246,7 @@ def _run_batadal_seed_scenario(
     dl_results_path: Path,
     logger,
 ) -> None:
-    # Preprocessor fit on train only (no leakage).
+                                                  
     preprocessor_for_dl = fit_preprocessor(
         train_df=split.x_train,
         feature_columns=feature_columns,
@@ -271,8 +267,8 @@ def _run_batadal_seed_scenario(
     x_train_auto = preprocessor_for_automata.transform(split.x_train).ravel()
     x_test_auto = preprocessor_for_automata.transform(split.x_test).ravel()
 
-    # Apply scenario-specific perturbations to the test set (train remains
-    # untouched per the brief).
+                                                                          
+                               
     x_test_dl_scenario = _apply_scenario_to_array(
         x_test_dl, split.y_test.to_numpy(), scenario_name, cfg.experiment, seed
     )
@@ -280,7 +276,7 @@ def _run_batadal_seed_scenario(
         x_test_auto.reshape(-1, 1), split.y_test.to_numpy(), scenario_name, cfg.experiment, seed
     ).ravel()
 
-    # ----- Automata -----
+                          
     grid = _automata_param_grid(
         cfg.automata, cfg.sweep.window_sizes, cfg.sweep.alphabet_sizes
     )
@@ -314,8 +310,8 @@ def _run_batadal_seed_scenario(
         }
         _record(payload, automata_results_path)
 
-        # Save explanations + transition matrix only for the fixed comparison
-        # parameters to keep artefact counts under control.
+                                                                             
+                                                           
         if (
             auto_cfg.window_size == cfg.automata.window_size
             and auto_cfg.alphabet_size == cfg.automata.alphabet_size
@@ -361,7 +357,7 @@ def _run_batadal_seed_scenario(
                 / f"counterfactual_batadal_{scenario_name}_seed{seed}.json",
             )
 
-    # ----- Deep learning -----
+                               
     if not torch_available():
         logger.warning("PyTorch not available; skipping DL models for BATADAL.")
         return
@@ -431,7 +427,7 @@ def _run_batadal_seed_scenario(
                 output_path_pr=cfg.paths.figures_dir
                 / f"pr_batadal_{model_name}_{scenario_name}_seed{seed}.png",
             )
-        # Cache aligned predictions for downstream statistical tests.
+                                                                     
         _cache_predictions(
             cfg.paths.results_dir,
             dataset="batadal",
@@ -443,9 +439,9 @@ def _run_batadal_seed_scenario(
         )
 
 
-# ---------------------------------------------------------------------------
-# SKAB
-# ---------------------------------------------------------------------------
+                                                                             
+      
+                                                                             
 
 
 def run_skab(cfg: ProjectConfig, logger) -> None:
@@ -551,8 +547,8 @@ def _run_skab_fold_scenario(
         x_test_auto.reshape(-1, 1), split.y_test.to_numpy(), scenario_name, cfg.experiment, seed
     ).ravel()
 
-    # Group the training stream by source_file so the automaton does not
-    # learn spurious transitions across file boundaries.
+                                                                        
+                                                        
     train_groups_index: dict[str, list[int]] = {}
     for i, g in enumerate(train_groups):
         train_groups_index.setdefault(g, []).append(i)
@@ -734,13 +730,11 @@ def _apply_scenario_to_array(
     exp_cfg: ExperimentConfig,
     seed: int,
 ) -> np.ndarray:
-    """Return test features for the requested scenario (train untouched)."""
 
     return _scenario_for(scenario_name, x, y, exp_cfg, seed).x
 
 
 def _automata_metrics_payload(result: AutomataRunResult) -> dict:
-    """Shared automata log fields (incl. PDF transition-density analysis)."""
 
     return {
         "n_states": result.n_states,
@@ -756,13 +750,12 @@ def _automata_metrics_payload(result: AutomataRunResult) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Public entry points
-# ---------------------------------------------------------------------------
+                                                                             
+                     
+                                                                             
 
 
 def run_experiments(cfg: ProjectConfig) -> None:
-    """Run the full BATADAL + SKAB experiment matrix."""
 
     cfg.paths.ensure()
     logger = get_logger(name="yazlab2.experiments", logs_dir=cfg.paths.logs_dir)
@@ -772,7 +765,7 @@ def run_experiments(cfg: ProjectConfig) -> None:
         run_batadal(cfg, logger)
     except FileNotFoundError as exc:
         logger.warning("BATADAL data not available, skipping: %s", exc)
-    except Exception:  # pragma: no cover - propagated for debugging.
+    except Exception:                                                
         logger.exception("BATADAL pipeline failed")
         raise
 
@@ -780,7 +773,7 @@ def run_experiments(cfg: ProjectConfig) -> None:
         run_skab(cfg, logger)
     except FileNotFoundError as exc:
         logger.warning("SKAB data not available, skipping: %s", exc)
-    except Exception:  # pragma: no cover - propagated for debugging.
+    except Exception:                                                
         logger.exception("SKAB pipeline failed")
         raise
 
@@ -833,7 +826,6 @@ def run_experiments(cfg: ProjectConfig) -> None:
 
 
 def aggregate_summaries(paths: PathsConfig) -> None:
-    """Compute mean/std summaries from the persisted per-run JSONL files."""
 
     summary_payload = {}
     for source_name, jsonl in [
@@ -887,18 +879,12 @@ def aggregate_summaries(paths: PathsConfig) -> None:
         write_json(paths.results_dir / "experiment_summary.json", summary_payload)
 
 
-# ---------------------------------------------------------------------------
-# Cross-dataset evaluation
-# ---------------------------------------------------------------------------
+                                                                             
+                          
+                                                                             
 
 
 def run_cross_dataset(cfg: ProjectConfig, logger) -> None:
-    """Train the automaton on one dataset and evaluate on the other.
-
-    Both datasets are reduced to a 1-D PCA stream so the SAX dictionary is
-    transferable. Deep-learning cross-dataset transfer is skipped because the
-    feature dimensionality differs between BATADAL and SKAB.
-    """
 
     cross_path = cfg.paths.results_dir / "cross_dataset_runs.jsonl"
 
@@ -931,10 +917,10 @@ def run_cross_dataset(cfg: ProjectConfig, logger) -> None:
     )
 
     for src_name, x_src, y_src, tgt_name, x_tgt, y_tgt in pairs:
-        # Each dataset has its own feature space, so we fit a separate
-        # scaler+PCA on each side and transfer only the SAX/automaton state
-        # space (letters/transitions). The shared SAX alphabet makes the
-        # mapping meaningful across datasets.
+                                                                      
+                                                                           
+                                                                        
+                                             
         prep_src = fit_preprocessor(
             train_df=x_src,
             feature_columns=list(x_src.columns),
@@ -995,13 +981,12 @@ def run_cross_dataset(cfg: ProjectConfig, logger) -> None:
             )
 
 
-# ---------------------------------------------------------------------------
-# Statistical tests
-# ---------------------------------------------------------------------------
+                                                                             
+                   
+                                                                             
 
 
 def run_statistical_tests(paths: PathsConfig, logger) -> None:
-    """Run paired Wilcoxon and McNemar tests across model pairs."""
 
     cache_dir = paths.results_dir / "predictions"
     if not cache_dir.exists():
@@ -1011,12 +996,12 @@ def run_statistical_tests(paths: PathsConfig, logger) -> None:
     if not files:
         return
 
-    # Index predictions by (dataset, scenario, fold/seed) so model pairs can
-    # be aligned.
+                                                                            
+                 
     records: list[dict] = []
     for p in files:
         stem = p.stem.split("_")
-        # Filename convention: {dataset}_{model}_{scenario}_[foldX_]seedY
+                                                                         
         dataset = stem[0]
         model = stem[1]
         rest = stem[2:]
@@ -1052,7 +1037,7 @@ def run_statistical_tests(paths: PathsConfig, logger) -> None:
             for model_b in models[i + 1 :]:
                 a_runs = group[group["model"] == model_a]
                 b_runs = group[group["model"] == model_b]
-                # F1 per run, paired by seed/fold.
+                                                  
                 join_cols = [c for c in ("seed", "fold") if c in a_runs.columns]
                 merged = a_runs.merge(
                     b_runs, on=join_cols, suffixes=("_a", "_b"), how="inner"
@@ -1067,10 +1052,10 @@ def run_statistical_tests(paths: PathsConfig, logger) -> None:
                 for _, row in merged.iterrows():
                     f1_a.append(_safe_f1(row["y_true_a"], row["y_pred_a"]))
                     f1_b.append(_safe_f1(row["y_true_b"], row["y_pred_b"]))
-                    # McNemar requires identical sample alignment between
-                    # the two predictors. Only collect pooled predictions
-                    # when the two models share the exact same y_true
-                    # sequence (e.g. lstm vs cnn1d, automata vs automata).
+                                                                         
+                                                                         
+                                                                     
+                                                                          
                     if np.array_equal(row["y_true_a"], row["y_true_b"]):
                         pooled_y_true.append(row["y_true_a"])
                         pooled_pred_a.append(row["y_pred_a"])
@@ -1116,7 +1101,6 @@ def _safe_f1(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 
 
 def _serialize_config(cfg: ProjectConfig) -> dict:
-    """Convert the (Path-laden) config into a JSON-serialisable dict."""
 
     def _normalize(obj):
         if isinstance(obj, Path):
@@ -1131,6 +1115,5 @@ def _serialize_config(cfg: ProjectConfig) -> dict:
 
 
 def run_bootstrap_pipeline(cfg: ProjectConfig) -> None:
-    """Backwards-compatible alias for the simple bootstrap entry point."""
 
     run_experiments(cfg)

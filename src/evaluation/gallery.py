@@ -22,7 +22,6 @@ def categorise(filename: str) -> str:
 
 
 def build_figure_gallery(figures_dir: Path) -> Path | None:
-    """Write ``gallery.html`` next to PNG files in ``figures_dir``."""
 
     figures_dir = figures_dir.resolve()
     if not figures_dir.exists():

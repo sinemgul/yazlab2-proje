@@ -25,8 +25,8 @@ def test_levenshtein_symmetry() -> None:
 
 
 def test_find_nearest_pattern_basic() -> None:
-    # "abd" and "abcd" both have edit distance 1 from "abc"; the deterministic
-    # lexicographic tie-break prefers "abcd" because 'c' < 'd' at position 2.
+                                                                              
+                                                                             
     nearest, distance = find_nearest_pattern("abc", ["abd", "xyz", "abcd"])
     assert nearest == "abcd"
     assert distance == 1
@@ -39,8 +39,8 @@ def test_find_nearest_pattern_unique_minimum() -> None:
 
 
 def test_find_nearest_pattern_tie_break_lexicographic() -> None:
-    # Both "abe" and "abd" are at distance 1 from "abc"; lexicographic order
-    # prefers "abd".
+                                                                            
+                    
     nearest, distance = find_nearest_pattern("abc", ["abe", "abd"])
     assert nearest == "abd"
     assert distance == 1

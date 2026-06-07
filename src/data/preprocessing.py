@@ -12,7 +12,6 @@ from src.config import PreprocessingConfig
 
 
 def handle_missing_values(df: pd.DataFrame, strategy: str) -> pd.DataFrame:
-    """Apply a missing-value strategy in place-safe fashion."""
 
     if strategy == "ffill_then_bfill":
         return df.ffill().bfill()
@@ -33,7 +32,6 @@ def _make_scaler(name: str):
 
 @dataclass
 class FittedPreprocessor:
-    """Container for the train-fit transformers."""
 
     scaler: object
     pca: Optional[PCA]
@@ -53,7 +51,6 @@ def fit_preprocessor(
     cfg: PreprocessingConfig,
     use_pca: bool,
 ) -> FittedPreprocessor:
-    """Fit the scaler and (optionally) PCA on the training set only."""
 
     train_clean = handle_missing_values(train_df[feature_columns], cfg.missing_strategy)
     scaler = _make_scaler(cfg.scaler)
@@ -68,7 +65,6 @@ def fit_preprocessor(
 
 
 def add_gaussian_noise(x: np.ndarray, std: float, rng: np.random.Generator) -> np.ndarray:
-    """Inject zero-mean Gaussian noise with the given standard deviation."""
 
     if std <= 0:
         return x

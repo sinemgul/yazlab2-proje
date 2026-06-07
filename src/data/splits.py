@@ -10,7 +10,6 @@ from sklearn.model_selection import GroupKFold, StratifiedGroupKFold
 
 @dataclass
 class SplitSet:
-    """Holds train / validation / test slices."""
 
     x_train: pd.DataFrame
     y_train: pd.Series
@@ -30,7 +29,6 @@ def time_ordered_split(
     val_ratio: float,
     test_ratio: float,
 ) -> SplitSet:
-    """Slice (x, y) along the row axis preserving temporal ordering."""
 
     if abs((train_ratio + val_ratio + test_ratio) - 1.0) > 1e-9:
         raise ValueError("Split ratios must sum to 1.")
@@ -54,11 +52,6 @@ def group_kfold_indices(
     n_splits: int,
     use_stratified: bool,
 ) -> Iterator[Tuple[np.ndarray, np.ndarray]]:
-    """Yield ``(train_idx, test_idx)`` group-aware folds.
-
-    ``StratifiedGroupKFold`` is preferred when the label distribution allows
-    it; fall back to ``GroupKFold`` otherwise.
-    """
 
     indices = np.arange(len(y))
     if use_stratified:
@@ -67,7 +60,7 @@ def group_kfold_indices(
             yield from splitter.split(indices.reshape(-1, 1), y, groups=groups)
             return
         except ValueError:
-            # Falls back to plain GroupKFold below.
+                                                   
             pass
     splitter = GroupKFold(n_splits=n_splits)
     yield from splitter.split(indices.reshape(-1, 1), y, groups=groups)
@@ -79,7 +72,6 @@ def carve_validation_from_train(
     val_ratio: float = 0.2,
     seed: int = 0,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Pull a contiguous group-aware validation slice from a training fold."""
 
     train_groups = groups.iloc[train_idx]
     unique_groups = list(dict.fromkeys(train_groups.tolist()))

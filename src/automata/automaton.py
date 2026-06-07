@@ -14,7 +14,6 @@ from src.automata.sax import SaxEncoder, sliding_windows
 
 @dataclass
 class TransitionExplanation:
-    """Single transition record exposed to the explanation module."""
 
     from_state: str
     to_state: str
@@ -23,12 +22,11 @@ class TransitionExplanation:
 
 @dataclass
 class StepExplanation:
-    """Per-time-step explanation produced by :class:`ProbabilisticAutomaton`."""
 
     time_step: int
     state: str
     pattern: str
-    status: str  # "seen" | "unseen"
+    status: str                     
     mapped_to: Optional[str]
     nearest_distance: Optional[int]
     transitions: List[TransitionExplanation] = field(default_factory=list)
@@ -62,7 +60,6 @@ class StepExplanation:
 
 @dataclass
 class ProbabilisticAutomaton:
-    """Frequency-based probabilistic automaton over SAX patterns."""
 
     encoder: SaxEncoder
     window_size: int
@@ -78,9 +75,9 @@ class ProbabilisticAutomaton:
     transition_probs: Dict[str, Dict[str, float]] = field(default_factory=dict)
     state_outgoing_totals: Dict[str, int] = field(default_factory=dict)
 
-    # ------------------------------------------------------------------
-    # Building blocks
-    # ------------------------------------------------------------------
+                                                                        
+                     
+                                                                        
     @classmethod
     def from_config(cls, cfg: AutomataConfig) -> "ProbabilisticAutomaton":
         encoder = SaxEncoder(paa_segments=cfg.paa_segments, alphabet_size=cfg.alphabet_size)
@@ -95,21 +92,14 @@ class ProbabilisticAutomaton:
         )
 
     def encode_sequence(self, series: Sequence[float]) -> List[str]:
-        """Encode a 1-D series into the list of SAX patterns."""
 
         windows = sliding_windows(series, self.window_size, self.stride)
         return [self.encoder.encode_window(w) for w in windows]
 
-    # ------------------------------------------------------------------
-    # Training
-    # ------------------------------------------------------------------
+                                                                        
+              
+                                                                        
     def fit(self, training_series: Iterable[Sequence[float]]) -> "ProbabilisticAutomaton":
-        """Estimate transition probabilities from one or more training series.
-
-        ``training_series`` is iterable of 1-D arrays so that group-aware
-        training (e.g. SKAB per source_file) can pass each group separately
-        and avoid spurious transitions across group boundaries.
-        """
 
         states_seen: set[str] = set()
         dictionary: set[str] = set()
@@ -144,9 +134,9 @@ class ProbabilisticAutomaton:
             probs[state] = row
         return probs
 
-    # ------------------------------------------------------------------
-    # Inference / explanation
-    # ------------------------------------------------------------------
+                                                                        
+                             
+                                                                        
     def transition_probability(self, from_state: str, to_state: str) -> float:
         row = self.transition_probs.get(from_state)
         if row is None:
@@ -154,7 +144,6 @@ class ProbabilisticAutomaton:
         return float(row.get(to_state, self.laplace_smoothing / max(len(self.states), 1)))
 
     def transition_structure_metrics(self) -> dict[str, float | int]:
-        """State count and transition density for parameter-sensitivity reports."""
 
         n_states = len(self.states)
         n_edges = sum(len(counter) for counter in self.transition_counts.values())
@@ -170,11 +159,6 @@ class ProbabilisticAutomaton:
         }
 
     def resolve_state(self, pattern: str) -> tuple[str, str, Optional[str], Optional[int]]:
-        """Return (resolved_state, status, mapped_to, distance).
-
-        A pattern is **seen** when it belongs to the training SAX dictionary
-        (PDF Bölüm VI / VI.A). Otherwise Levenshtein maps to the nearest state.
-        """
 
         if pattern in self.sax_dictionary:
             return pattern, "seen", None, 0
@@ -185,7 +169,6 @@ class ProbabilisticAutomaton:
         return pattern, "unseen", None, None
 
     def explain_sequence(self, series: Sequence[float]) -> List[StepExplanation]:
-        """Produce a per-step explanation trace for a 1-D series."""
 
         patterns = self.encode_sequence(series)
         explanations: List[StepExplanation] = []
@@ -206,8 +189,8 @@ class ProbabilisticAutomaton:
                 transitions.append(
                     TransitionExplanation(previous_resolved, resolved_state, p)
                 )
-                # Use log space to avoid floating point underflow on long
-                # series; keep the linear path_prob for the JSON output.
+                                                                         
+                                                                        
                 log_path_prob += math.log(max(p, 1e-300))
                 path_prob *= p
 
@@ -225,8 +208,8 @@ class ProbabilisticAutomaton:
             ):
                 decision = "anomaly"
 
-            # Confidence is the per-step transition probability for non-initial
-            # steps (so it remains meaningful regardless of sequence length).
+                                                                               
+                                                                             
             confidence = (
                 last_transition_prob if previous_resolved is not None else 1.0
             )
@@ -249,16 +232,10 @@ class ProbabilisticAutomaton:
 
         return explanations
 
-    # ------------------------------------------------------------------
-    # Anomaly prediction
-    # ------------------------------------------------------------------
+                                                                        
+                        
+                                                                        
     def predict_window_anomaly(self, series: Sequence[float]) -> List[int]:
-        """Return a 0/1 anomaly label per window in the series.
-
-        Each window is flagged as anomalous when the rolling path probability
-        falls below the configured threshold or when the SAX pattern is unseen
-        even after the Levenshtein fallback.
-        """
 
         return [
             1 if step.decision == "anomaly" else 0
@@ -266,19 +243,17 @@ class ProbabilisticAutomaton:
         ]
 
     def predict_sample_anomaly(self, series: Sequence[float]) -> int:
-        """Aggregate a 1-D series into a single anomaly label."""
 
         labels = self.predict_window_anomaly(series)
         if not labels:
             return 0
-        # A sample is anomalous if any of its windows trip the threshold.
+                                                                         
         return int(max(labels))
 
 
 def sequence_anomaly_probability(
     automaton: ProbabilisticAutomaton, series: Sequence[float]
 ) -> float:
-    """Return the path probability of the entire series in linear space."""
 
     explanations = automaton.explain_sequence(series)
     if not explanations:

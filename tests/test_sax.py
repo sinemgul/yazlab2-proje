@@ -28,7 +28,7 @@ def test_paa_non_divisible_length() -> None:
 def test_sax_breakpoints_three_letters() -> None:
     bps = sax_breakpoints(3)
     assert len(bps) == 2
-    # Breakpoints should be symmetric around 0 for an odd alphabet split.
+                                                                         
     assert math.isclose(bps[0], -bps[1], rel_tol=1e-9)
 
 
@@ -54,5 +54,5 @@ def test_sliding_windows_count() -> None:
 def test_sax_encoder_uses_window_settings() -> None:
     encoder = SaxEncoder(paa_segments=4, alphabet_size=3)
     encoded = encoder.encode_window(np.array([-3.0, -1.0, 1.0, 3.0]))
-    # Increasing series should map to a non-decreasing letter pattern.
+                                                                      
     assert encoded[0] <= encoded[-1]

@@ -18,12 +18,6 @@ def _iter_csv_files(root_dir: Path, folder_names: Iterable[str]) -> Iterable[Pat
 
 
 def load_skab_valves(cfg: SkabConfig) -> pd.DataFrame:
-    """Concatenate every valve1 / valve2 csv into a single dataframe.
-
-    Adds ``source_group`` (folder name) and ``source_file`` (csv filename)
-    bookkeeping columns. These columns must NOT be used as model inputs;
-    they are reserved for split definition and result analysis.
-    """
 
     frames: list[pd.DataFrame] = []
     for csv_path in _iter_csv_files(cfg.root_dir, cfg.include_folders):
@@ -56,7 +50,6 @@ def build_skab_features_target(
     source_file_col: str,
     changepoint_col: str | None = None,
 ) -> tuple[pd.DataFrame, pd.Series]:
-    """Drop the bookkeeping columns and return (features, target)."""
 
     drop_cols = {datetime_col, target_col, source_group_col, source_file_col}
     if changepoint_col and changepoint_col in df.columns:

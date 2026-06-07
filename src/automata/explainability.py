@@ -11,7 +11,6 @@ from src.automata.automaton import ProbabilisticAutomaton, StepExplanation
 
 
 def explanations_to_dataframe(explanations: Iterable[StepExplanation]) -> pd.DataFrame:
-    """Convert a list of StepExplanation entries into a tidy DataFrame."""
 
     rows: List[dict] = []
     for step in explanations:
@@ -38,7 +37,6 @@ def explanations_to_dataframe(explanations: Iterable[StepExplanation]) -> pd.Dat
 def save_explanations_jsonl(
     explanations: Iterable[StepExplanation], path: Path
 ) -> None:
-    """Persist explanations to a JSON lines file."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
@@ -47,7 +45,6 @@ def save_explanations_jsonl(
 
 
 def transition_matrix(automaton: ProbabilisticAutomaton) -> pd.DataFrame:
-    """Return the dense transition probability matrix as a DataFrame."""
 
     states = automaton.states
     matrix = np.zeros((len(states), len(states)), dtype=float)
@@ -58,7 +55,6 @@ def transition_matrix(automaton: ProbabilisticAutomaton) -> pd.DataFrame:
 
 
 def confidence_score_summary(explanations: Iterable[StepExplanation]) -> dict:
-    """Aggregate confidence scores into a small summary dict."""
 
     explanations = list(explanations)
     if not explanations:

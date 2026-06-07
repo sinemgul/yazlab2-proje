@@ -42,7 +42,6 @@ class AutomataRunResult:
 
 
 def _to_1d_series(x: np.ndarray) -> np.ndarray:
-    """Flatten an ``(n, d)`` array down to ``(n,)`` (assumes PCA d == 1)."""
 
     arr = np.asarray(x)
     if arr.ndim == 1:
@@ -55,8 +54,6 @@ def _to_1d_series(x: np.ndarray) -> np.ndarray:
 
 
 def _window_labels(y: np.ndarray, window_size: int, stride: int) -> np.ndarray:
-    """Aggregate row labels to per-window labels (any anomaly within the
-    window flags the window as anomalous)."""
 
     arr = np.asarray(y).astype(int)
     n = arr.shape[0]
@@ -71,10 +68,6 @@ def _window_labels(y: np.ndarray, window_size: int, stride: int) -> np.ndarray:
 def fit_automaton(
     train_series_groups: Iterable[np.ndarray], cfg: AutomataConfig
 ) -> Tuple[ProbabilisticAutomaton, float]:
-    """Build and fit a :class:`ProbabilisticAutomaton` from training groups.
-
-    Returns the fitted automaton and the wall-clock training time in seconds.
-    """
 
     automaton = ProbabilisticAutomaton.from_config(cfg)
     start = time.perf_counter()
@@ -88,11 +81,6 @@ def evaluate_automaton(
     test_labels: np.ndarray,
     mapping_distance_threshold: int = 1,
 ) -> AutomataRunResult:
-    """Evaluate the automaton on a single test series.
-
-    ``mapping_distance_threshold`` controls when a Levenshtein-based mapping
-    is considered "successful" for the unseen mapping accuracy metric.
-    """
 
     series_1d = _to_1d_series(test_series)
     inference_start = time.perf_counter()
@@ -131,7 +119,7 @@ def evaluate_automaton(
         step.pattern for step in explanations if step.status == "unseen"
     }
 
-    # ----- Detection rate / mapping accuracy for the unseen scenario -----
+                                                                           
     unseen_steps = [s for s in explanations if s.status == "unseen"]
     detection_rate = (
         float(sum(1 for s in unseen_steps if s.decision == "anomaly") / len(unseen_steps))
@@ -160,7 +148,7 @@ def evaluate_automaton(
 
     structure = automaton.transition_structure_metrics()
 
-    # Anomaly score for ROC/PR: higher = more anomalous => use 1 - confidence.
+                                                                              
     anomaly_score = np.array([1.0 - float(s.confidence) for s in explanations[:aligned_len]])
 
     return AutomataRunResult(

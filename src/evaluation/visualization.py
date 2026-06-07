@@ -13,8 +13,8 @@ try:
     import matplotlib.pyplot as plt
 
     _MPL_AVAILABLE = True
-except Exception:  # pragma: no cover
-    plt = None  # type: ignore[assignment]
+except Exception:                    
+    plt = None                            
     _MPL_AVAILABLE = False
 
 
@@ -23,7 +23,6 @@ def _ensure_mpl() -> bool:
 
 
 def plot_confusion_matrix(cm: np.ndarray, title: str, output_path: Path) -> None:
-    """Render a 2x2 confusion matrix to disk."""
 
     if not _ensure_mpl():
         return
@@ -47,7 +46,6 @@ def plot_confusion_matrix(cm: np.ndarray, title: str, output_path: Path) -> None
 
 
 def plot_transition_heatmap(matrix: pd.DataFrame, title: str, output_path: Path) -> None:
-    """Render a transition probability heatmap."""
 
     if not _ensure_mpl():
         return
@@ -71,7 +69,6 @@ def plot_transition_heatmap(matrix: pd.DataFrame, title: str, output_path: Path)
 def plot_state_diagram(
     matrix: pd.DataFrame, title: str, output_path: Path, top_k_edges: int = 30
 ) -> None:
-    """Render a (best-effort) state-diagram visualisation using a circular layout."""
 
     if not _ensure_mpl():
         return
@@ -122,7 +119,6 @@ def plot_parameter_sensitivity(
     output_path: Path,
     title: str = "Parameter sensitivity",
 ) -> None:
-    """Plot mean metric across the (window_size, alphabet_size) grid."""
 
     if not _ensure_mpl():
         return
@@ -167,7 +163,6 @@ def render_all_figures(
     figures_dir: Path,
     automata_summary_paths: Iterable[Path] = (),
 ) -> None:
-    """Walk through transitions CSVs and parameter summaries to render figures."""
 
     if not _ensure_mpl():
         return

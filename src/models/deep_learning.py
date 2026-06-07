@@ -7,24 +7,23 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-try:  # PyTorch is heavy; keep the import optional so static checks pass.
+try:                                                                     
     import torch
     from torch import nn
     from torch.utils.data import DataLoader, TensorDataset
 
     _TORCH_AVAILABLE = True
-except Exception:  # pragma: no cover - exercised in environments without torch.
-    torch = None  # type: ignore[assignment]
-    nn = None  # type: ignore[assignment]
-    DataLoader = None  # type: ignore[assignment]
-    TensorDataset = None  # type: ignore[assignment]
+except Exception:                                                               
+    torch = None                            
+    nn = None                            
+    DataLoader = None                            
+    TensorDataset = None                            
     _TORCH_AVAILABLE = False
 
 from src.config import DeepLearningConfig, TrainingConfig
 
 
 def torch_available() -> bool:
-    """Whether PyTorch is importable in the current environment."""
 
     return _TORCH_AVAILABLE
 
@@ -37,9 +36,9 @@ def _ensure_torch() -> None:
         )
 
 
-# ---------------------------------------------------------------------------
-# Network definitions
-# ---------------------------------------------------------------------------
+                                                                             
+                     
+                                                                             
 
 
 def _make_lstm_module(
@@ -51,7 +50,7 @@ def _make_lstm_module(
 ):
     _ensure_torch()
 
-    class LstmClassifier(nn.Module):  # type: ignore[name-defined]
+    class LstmClassifier(nn.Module):                              
         def __init__(self) -> None:
             super().__init__()
             self.rnn = nn.LSTM(
@@ -64,7 +63,7 @@ def _make_lstm_module(
             self.dropout = nn.Dropout(dropout)
             self.fc = nn.Linear(hidden_size, num_classes)
 
-        def forward(self, x):  # type: ignore[override]
+        def forward(self, x):                          
             output, _ = self.rnn(x)
             return self.fc(self.dropout(output[:, -1, :]))
 
@@ -80,7 +79,7 @@ def _make_gru_module(
 ):
     _ensure_torch()
 
-    class GruClassifier(nn.Module):  # type: ignore[name-defined]
+    class GruClassifier(nn.Module):                              
         def __init__(self) -> None:
             super().__init__()
             self.rnn = nn.GRU(
@@ -93,7 +92,7 @@ def _make_gru_module(
             self.dropout = nn.Dropout(dropout)
             self.fc = nn.Linear(hidden_size, num_classes)
 
-        def forward(self, x):  # type: ignore[override]
+        def forward(self, x):                          
             output, _ = self.rnn(x)
             return self.fc(self.dropout(output[:, -1, :]))
 
@@ -109,7 +108,7 @@ def _make_cnn_module(
 ):
     _ensure_torch()
 
-    class Cnn1dClassifier(nn.Module):  # type: ignore[name-defined]
+    class Cnn1dClassifier(nn.Module):                              
         def __init__(self) -> None:
             super().__init__()
             padding = max(kernel_size // 2, 1)
@@ -120,8 +119,8 @@ def _make_cnn_module(
             self.dropout = nn.Dropout(dropout)
             self.fc = nn.Linear(channels, num_classes)
 
-        def forward(self, x):  # type: ignore[override]
-            # x: (batch, seq_len, features) -> (batch, features, seq_len)
+        def forward(self, x):                          
+                                                                         
             x = x.transpose(1, 2)
             x = self.relu(self.conv1(x))
             x = self.relu(self.conv2(x))
@@ -149,9 +148,9 @@ def build_model(model_name: str, input_size: int, dl_cfg: DeepLearningConfig, nu
     raise ValueError(f"Unknown deep-learning model: {model_name}")
 
 
-# ---------------------------------------------------------------------------
-# Trainer
-# ---------------------------------------------------------------------------
+                                                                             
+         
+                                                                             
 
 
 @dataclass
@@ -173,7 +172,6 @@ def _set_torch_seed(seed: int) -> None:
 
 
 class DeepSequenceClassifier:
-    """sklearn-flavoured wrapper around the PyTorch sequence models."""
 
     def __init__(
         self,
@@ -321,7 +319,6 @@ def fit_dl_model(
     dl_cfg: DeepLearningConfig,
     train_cfg: TrainingConfig,
 ) -> Tuple[DeepSequenceClassifier, TrainingHistory]:
-    """Convenience helper used by the experiment runner."""
 
     classifier = DeepSequenceClassifier(
         model_name=model_name,

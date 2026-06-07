@@ -88,8 +88,8 @@ def test_explain_sequence_uses_log_probability_for_long_sequences() -> None:
 
 
 def test_anomaly_threshold_triggers_decision() -> None:
-    # Setting the per-step transition threshold above 1.0 forces every
-    # non-initial decision to be flagged as anomalous.
+                                                                      
+                                                      
     cfg = AutomataConfig(
         paa_segments=4,
         window_size=4,

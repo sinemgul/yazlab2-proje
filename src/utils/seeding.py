@@ -7,7 +7,6 @@ import numpy as np
 
 
 def set_global_seed(seed: int) -> None:
-    """Seed every supported RNG (Python, numpy, optional torch)."""
 
     os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)

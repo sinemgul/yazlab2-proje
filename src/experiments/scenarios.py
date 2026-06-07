@@ -25,10 +25,5 @@ def gaussian_noise_scenario(
 
 
 def dictionary_unseen_scenario(x: np.ndarray, y: np.ndarray) -> ScenarioOutput:
-    """Unseen evaluation uses unmodified test features (PDF VI.A).
-
-    Unseen patterns are those whose SAX representation was never observed
-    during training; detection is handled inside the automaton pipeline.
-    """
 
     return ScenarioOutput(name="unseen", x=x.copy(), y=y.copy())

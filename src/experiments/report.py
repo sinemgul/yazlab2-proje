@@ -51,7 +51,6 @@ def build_table1_performance(
     skab_auto: pd.DataFrame,
     skab_dl: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Tablo 1 - F1 mean ± std per dataset / model on the original scenario."""
 
     rows: list[dict] = []
 
@@ -95,7 +94,6 @@ def build_table2_noise_unseen(
     skab_auto: pd.DataFrame,
     skab_dl: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Tablo 2 - Original F1 / Noisy F1 / Detection Rate / Mapping Accuracy."""
 
     rows: list[dict] = []
 
@@ -147,7 +145,6 @@ def build_table2_noise_unseen(
 
 
 def build_table3_cross_dataset(cross_df: pd.DataFrame) -> pd.DataFrame:
-    """Tablo 3 - Cross-dataset transfer F1 (automaton)."""
 
     if cross_df.empty:
         return pd.DataFrame()
@@ -169,7 +166,6 @@ def build_table3_cross_dataset(cross_df: pd.DataFrame) -> pd.DataFrame:
 def build_table4_param_sensitivity(
     batadal_auto: pd.DataFrame, skab_auto: pd.DataFrame
 ) -> pd.DataFrame:
-    """Tablo 4 - Window/Alphabet sensitivity (F1, state count, transition density)."""
 
     rows: list[dict] = []
     for dataset_label, df in (("BATADAL", batadal_auto), ("SKAB", skab_auto)):
@@ -227,7 +223,6 @@ def build_table5_runtime(
     skab_auto: pd.DataFrame,
     skab_dl: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Tablo 5 - Runtime (training + inference seconds) averaged across runs."""
 
     rows: list[dict] = []
     sources = [
@@ -267,7 +262,6 @@ def build_table5_runtime(
 
 
 def build_markdown_report(paths: PathsConfig) -> Path:
-    """Aggregate every persisted result into a single Markdown report."""
 
     batadal_auto = _load_jsonl(paths.results_dir / "batadal_automata_runs.jsonl")
     batadal_dl = _load_jsonl(paths.results_dir / "batadal_dl_runs.jsonl")

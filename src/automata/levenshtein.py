@@ -4,10 +4,6 @@ from typing import Iterable, Optional, Tuple
 
 
 def levenshtein_distance(a: str, b: str) -> int:
-    """Compute the Levenshtein edit distance between two strings.
-
-    Uses two rolling rows to keep the memory footprint at ``O(min(|a|, |b|))``.
-    """
 
     if a == b:
         return 0
@@ -32,12 +28,6 @@ def levenshtein_distance(a: str, b: str) -> int:
 def find_nearest_pattern(
     pattern: str, candidates: Iterable[str]
 ) -> Tuple[Optional[str], int]:
-    """Find the candidate with the smallest edit distance to ``pattern``.
-
-    Returns a tuple ``(nearest, distance)``. When the candidate iterable is
-    empty, ``(None, -1)`` is returned. Ties are broken deterministically by
-    lexicographic order, which keeps the explanation module reproducible.
-    """
 
     best: Optional[str] = None
     best_distance = -1

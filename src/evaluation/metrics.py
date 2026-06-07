@@ -20,8 +20,8 @@ try:
     from scipy import stats
 
     _SCIPY_AVAILABLE = True
-except Exception:  # pragma: no cover
-    stats = None  # type: ignore[assignment]
+except Exception:                    
+    stats = None                            
     _SCIPY_AVAILABLE = False
 
 
@@ -46,7 +46,6 @@ class ClassificationMetrics:
 def compute_classification_metrics(
     y_true: Iterable[int], y_pred: Iterable[int], positive_label: int = 1
 ) -> ClassificationMetrics:
-    """Compute the four required classification metrics for a binary task."""
 
     y_true_arr = np.asarray(list(y_true)).astype(int)
     y_pred_arr = np.asarray(list(y_pred)).astype(int)
@@ -69,13 +68,11 @@ def compute_classification_metrics(
 
 
 def confusion(y_true: Iterable[int], y_pred: Iterable[int]) -> np.ndarray:
-    """Return the 2x2 confusion matrix."""
 
     return confusion_matrix(list(y_true), list(y_pred), labels=[0, 1])
 
 
 def aggregate_metrics(metrics: Sequence[ClassificationMetrics]) -> dict:
-    """Aggregate a list of metrics into mean/std summaries."""
 
     if not metrics:
         return {}
@@ -95,13 +92,12 @@ def aggregate_metrics(metrics: Sequence[ClassificationMetrics]) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Probabilistic / threshold-free metrics
-# ---------------------------------------------------------------------------
+                                                                             
+                                        
+                                                                             
 
 
 def roc_pr_summary(y_true: Sequence[int], scores: Sequence[float]) -> dict:
-    """Return ROC AUC, PR AUC, and the curve coordinates for plotting."""
 
     y_arr = np.asarray(list(y_true)).astype(int)
     s_arr = np.asarray(list(scores)).astype(float)
@@ -123,13 +119,12 @@ def roc_pr_summary(y_true: Sequence[int], scores: Sequence[float]) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Statistical tests
-# ---------------------------------------------------------------------------
+                                                                             
+                   
+                                                                             
 
 
 def wilcoxon_signed_rank(scores_a: Sequence[float], scores_b: Sequence[float]) -> dict:
-    """Run Wilcoxon's signed-rank test on paired model scores."""
 
     if not _SCIPY_AVAILABLE:
         return {"available": False, "reason": "scipy not installed"}
@@ -148,13 +143,12 @@ def wilcoxon_signed_rank(scores_a: Sequence[float], scores_b: Sequence[float]) -
 
 
 def mcnemar_test(y_true: Sequence[int], y_pred_a: Sequence[int], y_pred_b: Sequence[int]) -> dict:
-    """Compute McNemar's test for two classifiers' predictions."""
 
     y_true_arr = np.asarray(list(y_true)).astype(int)
     a = np.asarray(list(y_pred_a)).astype(int) == y_true_arr
     b = np.asarray(list(y_pred_b)).astype(int) == y_true_arr
-    n01 = int(np.sum(~a & b))  # A wrong, B correct
-    n10 = int(np.sum(a & ~b))  # A correct, B wrong
+    n01 = int(np.sum(~a & b))                      
+    n10 = int(np.sum(a & ~b))                      
 
     if n01 + n10 == 0:
         return {
@@ -173,7 +167,7 @@ def mcnemar_test(y_true: Sequence[int], y_pred_a: Sequence[int], y_pred_b: Seque
             "n10": n10,
         }
 
-    # Use exact binomial approximation for small samples; chi-square otherwise.
+                                                                               
     if n01 + n10 < 25:
         p_value = float(stats.binom.cdf(min(n01, n10), n01 + n10, 0.5) * 2.0)
         statistic = float(min(n01, n10))

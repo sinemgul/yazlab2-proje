@@ -40,7 +40,6 @@ def _table_html(header: list[str], rows: list[list[str]]) -> str:
 
 
 def parse_report_sections(md_text: str) -> list[dict]:
-    """Return every ``##`` section from experiment_report.md in order."""
 
     sections: list[dict] = []
     lines = md_text.splitlines()
@@ -83,7 +82,6 @@ def parse_report_sections(md_text: str) -> list[dict]:
 
 
 def _figures_html(figures_dir: Path, page_parent: Path) -> tuple[str, int]:
-    """Render every PNG grouped by category."""
 
     if not figures_dir.exists():
         return "<p>Figür klasörü bulunamadı.</p>", 0
@@ -147,9 +145,8 @@ def build_results_dashboard(
     gallery_path: Path | None = None,
     explanations_dir: Path | None = None,
 ) -> Path:
-    """Write ``dashboard.html`` with the complete experiment output."""
 
-    del explanations_dir  # reserved; explanations listed via results links
+    del explanations_dir                                                   
     report_md = report_md.resolve()
     figures_dir = figures_dir.resolve()
     output_path = output_path.resolve()
