@@ -1,11 +1,3 @@
-"""PAA (Piecewise Aggregate Approximation) and SAX implementations.
-
-The implementation follows the original SAX paper by Lin et al. (2003):
-the input series is normalised, divided into ``segments`` equal-length
-chunks whose means form the PAA representation, and each PAA value is then
-mapped to a letter via Gaussian breakpoints.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

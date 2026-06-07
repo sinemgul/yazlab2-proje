@@ -1,5 +1,3 @@
-"""Unit tests for experiment scenarios (PDF VI.A unseen definition)."""
-
 import numpy as np
 
 from src.experiments.scenarios import (

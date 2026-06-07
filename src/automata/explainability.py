@@ -1,5 +1,3 @@
-"""Explainability artefacts for the probabilistic automaton."""
-
 from __future__ import annotations
 
 import json

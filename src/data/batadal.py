@@ -1,5 +1,3 @@
-"""BATADAL Training Dataset 2 loading utilities."""
-
 from __future__ import annotations
 
 import pandas as pd

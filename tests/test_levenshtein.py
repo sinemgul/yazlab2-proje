@@ -1,5 +1,3 @@
-"""Unit tests for the Levenshtein implementation and pattern matching."""
-
 import pytest
 
 from src.automata.levenshtein import find_nearest_pattern, levenshtein_distance

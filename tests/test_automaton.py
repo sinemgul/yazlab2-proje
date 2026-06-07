@@ -1,5 +1,3 @@
-"""Unit tests for the probabilistic automaton."""
-
 import numpy as np
 
 from src.automata.automaton import ProbabilisticAutomaton

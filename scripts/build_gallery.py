@@ -1,9 +1,3 @@
-"""Build static HTML galleries for experiment figures.
-
-Usage:
-    python scripts/build_gallery.py [figures_dir ...]
-"""
-
 from __future__ import annotations
 
 import sys

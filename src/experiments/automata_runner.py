@@ -1,10 +1,3 @@
-"""Train / evaluate the probabilistic automaton over different scenarios.
-
-This module wires together preprocessing, the SAX encoder, the automaton and
-the evaluation utilities so the pipeline runner can call a single function
-per dataset / scenario / parameter combination.
-"""
-
 from __future__ import annotations
 
 import time

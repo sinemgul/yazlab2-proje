@@ -1,5 +1,3 @@
-"""Classification metrics and statistical comparison helpers."""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

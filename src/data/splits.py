@@ -1,10 +1,3 @@
-"""Train/validation/test splitting strategies.
-
-* BATADAL uses a strict 60/20/20 time-ordered split.
-* SKAB uses GroupKFold (or StratifiedGroupKFold when feasible) over
-  ``source_file`` so that every csv only appears in one fold at a time.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

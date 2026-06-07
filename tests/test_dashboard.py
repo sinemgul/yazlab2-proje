@@ -1,5 +1,3 @@
-"""Tests for the full results HTML page."""
-
 from __future__ import annotations
 
 from pathlib import Path

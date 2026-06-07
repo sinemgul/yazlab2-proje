@@ -1,5 +1,3 @@
-"""Build a full HTML results page (all tables + all figures)."""
-
 from __future__ import annotations
 
 import html

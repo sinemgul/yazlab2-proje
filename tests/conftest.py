@@ -1,5 +1,3 @@
-"""Make the project root importable in tests without installation."""
-
 import sys
 from pathlib import Path
 

@@ -1,5 +1,3 @@
-"""Unit tests for the counterfactual analysis helper."""
-
 import numpy as np
 
 from src.automata.automaton import ProbabilisticAutomaton

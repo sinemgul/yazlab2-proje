@@ -1,5 +1,3 @@
-"""Logging helpers shared by the experiment runner."""
-
 from __future__ import annotations
 
 import json

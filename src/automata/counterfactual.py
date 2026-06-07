@@ -1,11 +1,3 @@
-"""Counterfactual analysis for the probabilistic automaton (optional bonus).
-
-The module asks "what would the decision look like if a single SAX symbol of
-the observed pattern were replaced by another letter?" The output is a JSON
-record per pattern showing the perturbed alternatives, their nearest known
-state, the resulting transition probability and the decision change.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field

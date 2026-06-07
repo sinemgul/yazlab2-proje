@@ -1,10 +1,3 @@
-"""Scenario generators (original / Gaussian noise / unseen patterns).
-
-The **unseen** scenario follows PDF Bölüm VI.A: test data is not artificially
-corrupted.  Patterns absent from the training SAX dictionary are labelled
-``unseen`` at inference time by :class:`~src.automata.automaton.ProbabilisticAutomaton`.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

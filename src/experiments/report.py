@@ -1,15 +1,3 @@
-"""Build the Markdown experiment report from the persisted JSONL/CSV results.
-
-The output mirrors the supplementary template (Tablo 1-5) so the user can
-paste the generated report into the project's main report:
-
-* Tablo 1 - Model F1 ± std per dataset
-* Tablo 2 - Noise effect + Detection Rate + Mapping Accuracy
-* Tablo 3 - Cross-dataset performance
-* Tablo 4 - Automata window/alphabet sensitivity
-* Tablo 5 - Training / Inference time per model
-"""
-
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,11 +1,3 @@
-"""Deep-learning baselines (LSTM, GRU, 1D-CNN) implemented in PyTorch.
-
-The trainer applies the project-wide hyper-parameters (max 50 epochs, batch
-size 32, validation-loss based early stopping with patience 5) and exposes a
-simple sklearn-like ``fit`` / ``predict`` surface so the experiment runner
-can treat all models uniformly.
-"""
-
 from __future__ import annotations
 
 import copy

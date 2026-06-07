@@ -1,12 +1,3 @@
-"""Probabilistic automaton over SAX patterns.
-
-States correspond to the SAX strings observed during training. Transition
-probabilities are estimated from training data with optional Laplace
-smoothing. At inference time, unseen patterns are mapped to the closest
-known pattern via Levenshtein distance and decisions are explained via
-the path probability of the observed sequence.
-"""
-
 from __future__ import annotations
 
 import math

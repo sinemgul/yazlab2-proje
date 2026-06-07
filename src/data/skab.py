@@ -1,5 +1,3 @@
-"""SKAB valve1 / valve2 loading utilities."""
-
 from __future__ import annotations
 
 from pathlib import Path

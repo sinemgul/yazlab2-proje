@@ -1,10 +1,3 @@
-"""Reusable preprocessing primitives.
-
-All transformers follow the project rule that fitting happens only on the
-training set. Validation and test sets are transformed with the train-fitted
-parameters to avoid data leakage.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

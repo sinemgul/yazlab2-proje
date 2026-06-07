@@ -1,10 +1,3 @@
-"""Quick smoke test for the experiment pipeline using a tiny config.
-
-Used during development to verify that loading, preprocessing, the automaton
-and the result aggregation work end-to-end without launching the full
-parameter sweep.
-"""
-
 from __future__ import annotations
 
 import sys

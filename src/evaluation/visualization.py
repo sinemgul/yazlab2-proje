@@ -1,8 +1,3 @@
-"""Visualisation helpers for the report (confusion matrix, transition heatmap,
-state diagram, sensitivity plots). Matplotlib is optional - the helpers exit
-silently when it is not installed.
-"""
-
 from __future__ import annotations
 
 from pathlib import Path

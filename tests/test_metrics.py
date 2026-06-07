@@ -1,5 +1,3 @@
-"""Unit tests for the metric helpers."""
-
 import numpy as np
 
 from src.evaluation.metrics import (

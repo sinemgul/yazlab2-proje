@@ -1,5 +1,3 @@
-"""Unit tests for the PAA / SAX implementation."""
-
 import math
 
 import numpy as np

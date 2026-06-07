@@ -1,10 +1,3 @@
-"""End-to-end orchestration for BATADAL and SKAB experiments.
-
-The entry point :func:`run_experiments` walks through every configured
-scenario, parameter setting and random seed and persists per-run metrics
-plus aggregated summaries under :class:`PathsConfig`.
-"""
-
 from __future__ import annotations
 
 from dataclasses import asdict

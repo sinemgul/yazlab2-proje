@@ -1,10 +1,3 @@
-"""Centralized configuration for the Yazlab2 project.
-
-All experiment, model and dataset parameters live here. Hard-coded values
-elsewhere in the code base are not allowed; every component must read its
-parameters from a `ProjectConfig` instance.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field

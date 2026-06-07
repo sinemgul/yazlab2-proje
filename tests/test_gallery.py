@@ -1,5 +1,3 @@
-"""Tests for the static figure gallery builder."""
-
 from __future__ import annotations
 
 from pathlib import Path

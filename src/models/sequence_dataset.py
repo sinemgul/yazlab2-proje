@@ -1,5 +1,3 @@
-"""Helpers for turning a 2-D feature matrix into supervised sequences."""
-
 from __future__ import annotations
 
 from typing import Tuple
